@@ -147,17 +147,25 @@ def getRandomRect(image, height=False, width=False):
     topy = random.randrange(0,maxHeight-height)
     bottomx = topx+width
     bottomy = topy+height
-    return([[topx, topy],[bottomx, bottomy]])
+    return([[topy, topx],[bottomy, bottomx]])
 
 # Function that moves the contents of one rectangle into another rectangle of the same size
 # Takes arguments for starting Rect and ending Rect, with rectangles defined as they are
 # in the comments for getRandomRect
 def moveRect(imgarray, startRect, endRect):
+    modarray = imgarray
     #TODO: validate input by e.g. verifying size of rects is identical
-    for i in range(startRect[0][0], startRect[0][1]):
-        for j in range(startRect[1][0], startRect[1][1]):
-            #print("blah" + str(i) + ' ' + str(j))
-            #TODO: finish writing function
+    height = startRect[1][0] - startRect[0][0]
+    endheight = endRect[1][0] - endRect[0][0]
+    print("DEBUG: height = " + str(height) + ' ' + str(endheight))
+    width = startRect[1][1] - startRect[0][1]
+    endwidth = endRect[1][1] - endRect[0][1]
+    print("DEBUG: width = " + str(width) + ' ' + str(endwidth))
+    for i in range(0, height):
+        for j in range(0, width):
+            modarray[endRect[0][0] + i][endRect[0][1] + j] = modarray[startRect[0][0] + i][startRect[0][1] + j]
+    return modarray
+
 
 
 print("Hello dog")
@@ -176,6 +184,7 @@ print(orig.mode)
 print(orig.size)
 orig.show()
 origarray = keras.preprocessing.image.img_to_array(orig)
+print(len(origarray))
 
 # for i, row in enumerate(origarray):
 #     for j, column in enumerate(origarray):
@@ -184,12 +193,16 @@ origarray = keras.preprocessing.image.img_to_array(orig)
 # newimage = keras.preprocessing.image.array_to_img(origarray)
 # newimage.show()
 
-startRect=getRandomRect(origarray)
-print(startRect)
-endRect=startRect
-print(endRect)
-moveRect(origarray, startRect, endRect)
-
+newarray = origarray
+for i in range(0,10):
+    print(str(i))
+    startRect=getRandomRect(origarray)
+    print(startRect)
+    endRect=getRandomRect(origarray,startRect[1][0] - startRect[0][0],startRect[1][1] - startRect[0][1])
+    print(endRect)
+    newarray = moveRect(newarray, startRect, endRect)
+new = keras.preprocessing.image.array_to_img(newarray)
+new.show()
 
 #fliparray = numpy.flip(origarray, [0])
 #flipimage = keras.preprocessing.image.array_to_img(fliparray)
