@@ -1,7 +1,14 @@
+#!/usr/bin/env python3
+
 import random
 import time
+import sys
 
 print("Hello dog")
+if len(sys.argv) != 2:
+    sys.exit("Usage: %s imagefile" % sys.argv[0])
+
+origfile = sys.argv[1]
 
 #---- global variables ----
 # mutation variables
@@ -127,16 +134,3 @@ def Evolve(startImage, numChildren, stopType, stopValue):
     totalGen = gen - 1
     runTime = startTime - time.time()
     return(parentHistory, totalGen, runTime)
-
-
-
-
-
-
-
-
-
-
-
-    
-    
