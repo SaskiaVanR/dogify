@@ -3,9 +3,11 @@
 import random
 import time
 import sys
+import numpy
 
 print("Hello dog")
 if len(sys.argv) != 2:
+    #origfile = "f.png" 
     sys.exit("Usage: %s imagefile" % sys.argv[0])
 
 import keras
@@ -19,6 +21,10 @@ print(orig.mode)
 print(orig.size)
 orig.show()
 origarray = keras.preprocessing.image.img_to_array(orig)
+fliparray = numpy.flip(origarray, [1])
+flipimage = keras.preprocessing.image.array_to_img(fliparray)
+flipimage.show()
+
 
 
 
