@@ -51,22 +51,6 @@ MAX_TIME = 3 #for setting max amount of time
 
 #---- end of global variables ----
 
-# function that returns the position of a random rectangle in an image,
-# optionally taking the size of the rectangle as an argument
-# returns two arrays of two, in the form [row, column],[row,column]
-# for the top left and bottom right corners of the rectangle
-#TODO
-
-# Function that moves the contents of one rectangle into another rectangle of the same size
-# Takes arguments for starting Rect and ending Rect, with rectangles defined as they are
-# in the comments for getRandomRect
-def moveRect(img, startRect, endRect)
-    #TODO: validate input by e.g. verifying size of rects is identical
-    for i in range(startRect[0][0], startRect[0][1]):
-        for j in range(startRect[1][0], startRect[1][1]):
-            print("blah" + i + j)
-            #TODO: finish writing function
-
 # class for storing the image to evolve
 class dogImage(object):
 
@@ -181,6 +165,10 @@ def Evolve(startImage, numChildren, stopType, stopValue):
     return(parentHistory, totalGen, runTime)
 
 
+# function that returns the position of a random rectangle in an image,
+# optionally taking the size of the rectangle as an argument
+# returns two arrays of two, in the form [row, column],[row,column]
+# for the top left and bottom right corners of the rectangle
 def getRandomRect(image, height=False, width=False):
     # TODO: percentage pixels
     if height==False:
@@ -195,6 +183,12 @@ def getRandomRect(image, height=False, width=False):
     bottomy = topy+height
     return([[topx, topy],[bottomx, bottomy]])
 
-
-
-    
+# Function that moves the contents of one rectangle into another rectangle of the same size
+# Takes arguments for starting Rect and ending Rect, with rectangles defined as they are
+# in the comments for getRandomRect
+def moveRect(img, startRect, endRect)
+    #TODO: validate input by e.g. verifying size of rects is identical
+    for i in range(startRect[0][0], startRect[0][1]):
+        for j in range(startRect[1][0], startRect[1][1]):
+            print("blah" + i + j)
+            #TODO: finish writing function
