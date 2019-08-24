@@ -28,11 +28,18 @@ class dogImage(object):
 
     # calculates objective value and stores it under self.obj
     def calcObj(self):
-        self.obj = True
+        total = 0
+        for row in self.image_data[::20]:
+            for column in row[::20]:
+                for rgb in column:    
+                    total += rgb
+        self.obj = total
 
 
     # mutates the image
     def mutate(self):
+        self.mutateRect()
+        return
 
         # does different mutations based on randomly generated number p
         p = random.random()
@@ -49,10 +56,19 @@ class dogImage(object):
     def mutateB(self):
         pass
 
+    def mutateRect(self):
+        startRect=getRandomRect(self.image_data)
+        endRect=getRandomRect(self.image_data,startRect[1][0] - startRect[0][0],startRect[1][1] - startRect[0][1])
+        self.image_data = moveRect(self.image_data, startRect, endRect)
+
     # this function returns a new dogImage object
     # new dogImage must have a /copy/ of the image_data
     def makeCopy(self):
-        return self
+        return dogImage(numpy.copy(self.image_data))
+
+    def display(self):
+        img = keras.preprocessing.image.array_to_img(self.image_data)
+        img.show()
 
 
 def endCondition(stopType, stopValue, gen, bestConf, currentTime):
@@ -157,10 +173,10 @@ def moveRect(imgarray, startRect, endRect):
     #TODO: validate input by e.g. verifying size of rects is identical
     height = startRect[1][0] - startRect[0][0]
     endheight = endRect[1][0] - endRect[0][0]
-    print("DEBUG: height = " + str(height) + ' ' + str(endheight))
+    #print("DEBUG: height = " + str(height) + ' ' + str(endheight))
     width = startRect[1][1] - startRect[0][1]
     endwidth = endRect[1][1] - endRect[0][1]
-    print("DEBUG: width = " + str(width) + ' ' + str(endwidth))
+    #print("DEBUG: width = " + str(width) + ' ' + str(endwidth))
     for i in range(0, height):
         for j in range(0, width):
             endy = endRect[0][0] + i
@@ -230,6 +246,7 @@ print(len(origarray))
 #flipimage = keras.preprocessing.image.array_to_img(fliparray)
 #flipimage.show()
 
-
-
-
+creed = dogImage(origarray)
+parentHistory, totalGen, runTime = Evolve(creed, 5, MAX_GEN, 1000)
+best = parentHistory[-1]
+best.display()
