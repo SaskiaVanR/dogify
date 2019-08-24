@@ -167,6 +167,31 @@ def moveRect(imgarray, startRect, endRect):
     return modarray
 
 
+def distToEdge(value, firstEdge, secondEdge):
+    return min(abs(firstEdge-value), abs(secondEdge-value)) /(secondEdge-firstEdge)
+
+def normDist(pixely, pixelx, topx, topy, bottomx, bottomy):
+    dist = 1-2*min(distToEdge(pixely, topy, bottomy),
+               distToEdge(pixelx, topx, bottomx))
+    return dist
+
+
+def blur(blurAmount, rgbstart, rgbend):
+    return((blurAmount*rgbend + (1-blurAmount)*rgbstart)/2)
+
+
+blurry = [[0 for i in range(10)] for i in range(10)]
+print(blurry)
+
+for y in range(10):
+    for x in range(10):
+        print(x,y,normDist(y,x,0,0,10,10))
+        blurry[x][y] = normDist(y,x,0,0,10,10)
+        #print("\n".join([str(row) for row in blurry]))
+        
+
+print("\n".join([str(row) for row in blurry]))
+    
 
 print("Hello dog")
 if len(sys.argv) != 2:
