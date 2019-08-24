@@ -5,40 +5,6 @@ import time
 import sys
 import numpy
 
-print("Hello dog")
-if len(sys.argv) != 2:
-    origfile = "f.png" 
-    #sys.exit("Usage: %s imagefile" % sys.argv[0])
-
-import keras
-
-#origfile = sys.argv[1]
-orig = keras.preprocessing.image.load_img(origfile)
-# Some debug crap
-print(type(orig))
-print(orig.format)
-print(orig.mode)
-print(orig.size)
-orig.show()
-origarray = keras.preprocessing.image.img_to_array(orig)
-
-for i, row in enumerate(origarray):
-    for j, column in enumerate(origarray):
-        if 50<=i<=100 and 100<=j<=150:
-            origarray[i][j] = [0,0,0]
-newimage = keras.preprocessing.image.array_to_img(origarray)
-newimage.show()
-
-
-
-
-#fliparray = numpy.flip(origarray, [0])
-#flipimage = keras.preprocessing.image.array_to_img(fliparray)
-#flipimage.show()
-
-
-
-
 #---- global variables ----
 # mutation variables
 sigmaA = 1 # (example) mutation sigma for mutate A
@@ -186,9 +152,49 @@ def getRandomRect(image, height=False, width=False):
 # Function that moves the contents of one rectangle into another rectangle of the same size
 # Takes arguments for starting Rect and ending Rect, with rectangles defined as they are
 # in the comments for getRandomRect
-def moveRect(img, startRect, endRect)
+def moveRect(imgarray, startRect, endRect):
     #TODO: validate input by e.g. verifying size of rects is identical
     for i in range(startRect[0][0], startRect[0][1]):
         for j in range(startRect[1][0], startRect[1][1]):
-            print("blah" + i + j)
+            #print("blah" + str(i) + ' ' + str(j))
             #TODO: finish writing function
+
+
+print("Hello dog")
+if len(sys.argv) != 2:
+    #origfile = "f.png" 
+    sys.exit("Usage: %s imagefile" % sys.argv[0])
+
+import keras
+
+origfile = sys.argv[1]
+orig = keras.preprocessing.image.load_img(origfile)
+# Some debug crap
+print(type(orig))
+print(orig.format)
+print(orig.mode)
+print(orig.size)
+orig.show()
+origarray = keras.preprocessing.image.img_to_array(orig)
+
+# for i, row in enumerate(origarray):
+#     for j, column in enumerate(origarray):
+#         if 50<=i<=100 and 100<=j<=150:
+#             origarray[i][j] = [0,0,0]
+# newimage = keras.preprocessing.image.array_to_img(origarray)
+# newimage.show()
+
+startRect=getRandomRect(origarray)
+print(startRect)
+endRect=startRect
+print(endRect)
+moveRect(origarray, startRect, endRect)
+
+
+#fliparray = numpy.flip(origarray, [0])
+#flipimage = keras.preprocessing.image.array_to_img(fliparray)
+#flipimage.show()
+
+
+
+
