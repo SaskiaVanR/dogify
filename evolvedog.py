@@ -8,7 +8,18 @@ print("Hello dog")
 if len(sys.argv) != 2:
     sys.exit("Usage: %s imagefile" % sys.argv[0])
 
+import keras
+
 origfile = sys.argv[1]
+orig = keras.preprocessing.image.load_img(origfile)
+# Some debug crap
+print(type(orig))
+print(orig.format)
+print(orig.mode)
+print(orig.size)
+orig.show()
+
+
 
 #---- global variables ----
 # mutation variables
