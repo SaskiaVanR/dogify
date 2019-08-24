@@ -3,3 +3,4 @@
 *.csv
 *.h5
 train
+CIFAR_features.txt
