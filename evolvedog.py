@@ -7,12 +7,12 @@ import numpy
 
 print("Hello dog")
 if len(sys.argv) != 2:
-    #origfile = "f.png" 
-    sys.exit("Usage: %s imagefile" % sys.argv[0])
+    origfile = "f.png" 
+    #sys.exit("Usage: %s imagefile" % sys.argv[0])
 
 import keras
 
-origfile = sys.argv[1]
+#origfile = sys.argv[1]
 orig = keras.preprocessing.image.load_img(origfile)
 # Some debug crap
 print(type(orig))
@@ -28,6 +28,8 @@ for i, row in enumerate(origarray):
             origarray[i][j] = [0,0,0]
 newimage = keras.preprocessing.image.array_to_img(origarray)
 newimage.show()
+
+
 
 
 #fliparray = numpy.flip(origarray, [0])
@@ -161,3 +163,22 @@ def Evolve(startImage, numChildren, stopType, stopValue):
     totalGen = gen - 1
     runTime = startTime - time.time()
     return(parentHistory, totalGen, runTime)
+
+
+def getRandomRect(image, height=False, width=False):
+    # TODO: percentage pixels
+    if height==False:
+        height=random.randrange(20,100)
+    if width==False:
+        width=random.randrange(20,100)
+    maxHeight = len(origarray)
+    maxWidth = len(origarray[0])
+    topx = random.randrange(0,maxWidth-width)
+    topy = random.randrange(0,maxHeight-height)
+    bottomx = topx+width
+    bottomy = topy+height
+    return([[topx, topy],[bottomx, bottomy]])
+
+
+
+    
