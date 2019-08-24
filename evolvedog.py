@@ -18,6 +18,7 @@ print(orig.format)
 print(orig.mode)
 print(orig.size)
 orig.show()
+origarray = keras.preprocessing.image.img_to_array(orig)
 
 
 
