@@ -163,34 +163,31 @@ def moveRect(imgarray, startRect, endRect):
     print("DEBUG: width = " + str(width) + ' ' + str(endwidth))
     for i in range(0, height):
         for j in range(0, width):
-            modarray[endRect[0][0] + i][endRect[0][1] + j] = modarray[startRect[0][0] + i][startRect[0][1] + j]
+            endy = endRect[0][0] + i
+            endx = endRect[0][1] + j
+            starty = startRect[0][0] + i
+            startx = startRect[0][1] + j
+            pixel = blur(normDist(endy, endx, endRect[0][1], endRect[0][0], endRect[0][1]+width, endRect[0][0]+height),\
+                         modarray[starty][startx], modarray[endy][endx])
+            
+            modarray[endRect[0][0] + i][endRect[0][1] + j] = pixel
     return modarray
 
 
 def distToEdge(value, firstEdge, secondEdge):
-    return min(abs(firstEdge-value), abs(secondEdge-value)) /(secondEdge-firstEdge)
+    return min(abs(firstEdge-value), abs(secondEdge-value))
 
 def normDist(pixely, pixelx, topx, topy, bottomx, bottomy):
-    dist = 1-2*min(distToEdge(pixely, topy, bottomy),
-               distToEdge(pixelx, topx, bottomx))
-    return dist
+    minDist = min(distToEdge(pixely, topy, bottomy),distToEdge(pixelx, topx, bottomx))
+    return minDist
 
 
-def blur(blurAmount, rgbstart, rgbend):
-    return((blurAmount*rgbend + (1-blurAmount)*rgbstart)/2)
-
-
-blurry = [[0 for i in range(10)] for i in range(10)]
-print(blurry)
-
-for y in range(10):
-    for x in range(10):
-        print(x,y,normDist(y,x,0,0,10,10))
-        blurry[x][y] = normDist(y,x,0,0,10,10)
-        #print("\n".join([str(row) for row in blurry]))
-        
-
-print("\n".join([str(row) for row in blurry]))
+def blur(minDist, rgbstart, rgbend):
+    if minDist>15:
+        blurAmount = 0
+    else:
+        blurAmount = 1 - minDist/15
+    return((blurAmount*rgbend + (1-blurAmount)*rgbstart))
     
 
 print("Hello dog")
@@ -218,16 +215,16 @@ print(len(origarray))
 # newimage = keras.preprocessing.image.array_to_img(origarray)
 # newimage.show()
 
-newarray = origarray
-for i in range(0,10):
-    print(str(i))
-    startRect=getRandomRect(origarray)
-    print(startRect)
-    endRect=getRandomRect(origarray,startRect[1][0] - startRect[0][0],startRect[1][1] - startRect[0][1])
-    print(endRect)
-    newarray = moveRect(newarray, startRect, endRect)
-new = keras.preprocessing.image.array_to_img(newarray)
-new.show()
+##newarray = origarray
+##for i in range(0,10):
+##    print(str(i))
+##    startRect=getRandomRect(origarray)
+##    print(startRect)
+##    endRect=getRandomRect(origarray,startRect[1][0] - startRect[0][0],startRect[1][1] - startRect[0][1])
+##    print(endRect)
+##    newarray = moveRect(newarray, startRect, endRect)
+##new = keras.preprocessing.image.array_to_img(newarray)
+##new.show()
 
 #fliparray = numpy.flip(origarray, [0])
 #flipimage = keras.preprocessing.image.array_to_img(fliparray)
