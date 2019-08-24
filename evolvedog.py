@@ -111,16 +111,24 @@ def Evolve(startImage, numChildren, stopType, stopValue):
                 best = child
                 bestConf = child.obj
 
-        # best is now the parent
+        # best is now the parent, add it to history
         parent = best
+        parentHistory += [parent]
+
+        # update stats
+        currentTime = time.time() - startTime
+        gen += 1
 
         # some stats for nerds
-        print("Best conf:", bestConf, "blah")
+        print("Generation:",gen,"\tBest conf:", bestConf, "\tRun time (s):",\
+              round(currentTime,1))
 
+    # get final times
     totalGen = gen - 1
     runTime = startTime - time.time()
     return(parentHistory, totalGen, runTime)
-    
+
+
 
 
 
