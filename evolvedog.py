@@ -21,9 +21,18 @@ print(orig.mode)
 print(orig.size)
 orig.show()
 origarray = keras.preprocessing.image.img_to_array(orig)
-fliparray = numpy.flip(origarray, [1])
-flipimage = keras.preprocessing.image.array_to_img(fliparray)
-flipimage.show()
+
+for i, row in enumerate(origarray):
+    for j, column in enumerate(origarray):
+        if 50<=i<=100 and 100<=j<=150:
+            origarray[i][j] = [0,0,0]
+newimage = keras.preprocessing.image.array_to_img(origarray)
+newimage.show()
+
+
+#fliparray = numpy.flip(origarray, [0])
+#flipimage = keras.preprocessing.image.array_to_img(fliparray)
+#flipimage.show()
 
 
 
