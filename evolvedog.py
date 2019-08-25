@@ -29,9 +29,6 @@ def predictImage(imagearray):
             bestp = f[0][i]
     return bestp, best
 
-
-
-    
 # load the VGG16 network and initialize the label encoder
 print("[INFO] loading network...")
 #keras.models.load_model("vgg19_weights_tf_dim_ordering_tf_kernels.h5")
@@ -78,7 +75,7 @@ class dogImage(object):
         total = 0
         for row in self.image_data[::20]:
             for column in row[::20]:
-                for rgb in column:    
+                for rgb in column:
                     total += rgb
         self.obj = total
 
@@ -132,7 +129,6 @@ class dogImage(object):
                 endy = endRect[0][0] + i
                 endx = endRect[0][1] + j
                 self.image_data[endRect[0][0] + i][endRect[0][1] + j] *=hue
-        
 
     def mutateRect(self):
         startRect=getRandomRectStart(self.image_data)
@@ -148,7 +144,6 @@ class dogImage(object):
         img = keras.preprocessing.image.array_to_img(self.image_data)
         img.show()
 
-
 def endCondition(stopType, stopValue, gen, bestConf, currentTime):
     if stopType==MAX_GEN:
         return gen>stopValue
@@ -159,7 +154,6 @@ def endCondition(stopType, stopValue, gen, bestConf, currentTime):
     else:
         #pretend it is max time of 10 seconds
         return currentTime>=10
-
 
 # ---- evolves startImage to be more dog ----
 #
@@ -176,8 +170,6 @@ def endCondition(stopType, stopValue, gen, bestConf, currentTime):
 #                 parentHistory[-1] is the final image
 # totalGen = total number of generations
 # runTime = total run time
-
-
 def Evolve(startImage, numChildren, stopType, stopValue):
     # initialise parent
     parent = startImage
@@ -224,7 +216,6 @@ def Evolve(startImage, numChildren, stopType, stopValue):
     runTime = startTime - time.time()
     return(parentHistory, totalGen, runTime)
 
-
 # function that returns the position of a random rectangle in an image,
 # optionally taking the size of the rectangle as an argument
 # returns two arrays of two, in the form [row, column],[row,column]
@@ -239,7 +230,6 @@ def getRandomRectStart(image, height=False, width=False):
     if width==False:
         width=random.randrange(int(maxWidth*REC_PERC_MIN),
                                 int(maxWidth*REC_PERC_MAX))
-    
     topx = random.randrange(0,maxWidth-width)
     topy = random.randrange(0,maxHeight-height)
     bottomx = topx+width
@@ -304,7 +294,6 @@ def blur(minDist, rgbstart, rgbend):
     else:
         blurAmount = 1 - minDist/15
     return((blurAmount*rgbend + (1-blurAmount)*rgbstart))
-    
 
 def colourDist(c1, c2):
     return ((c1[0]-c2[0])**2 + (c1[1]-c2[1])**2 + (c1[2]-c2[2])**2)**(1/2)
@@ -324,6 +313,7 @@ targetWidth = len(targetDog[0])
 origfile = sys.argv[1]
 
 im1 = Image.open(origfile)
+#TODO: reconsider this
 im2 = im1.resize((224,224), Image.BILINEAR)
 im2.save("fresize.jpg")
 orig = keras.preprocessing.image.load_img("fresize.jpg")
@@ -362,6 +352,6 @@ original = origarray
 creed = dogImage(origarray)
 creedChild = creed.makeCopy()
 #creedChild.image_data = creedChild.image_data*0
-parentHistory, totalGen, runTime = Evolve(creedChild, 5, MAX_GEN, 300)
+parentHistory, totalGen, runTime = Evolve(creedChild, 5, MAX_GEN, 100)
 best = parentHistory[-1]
 best.display()
