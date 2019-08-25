@@ -289,10 +289,10 @@ def normDist(pixely, pixelx, topx, topy, bottomx, bottomy):
 
 
 def blur(minDist, rgbstart, rgbend):
-    if minDist>15:
+    if minDist>5:
         blurAmount = 0
     else:
-        blurAmount = 1 - minDist/15
+        blurAmount = 1 - minDist/5
     return((blurAmount*rgbend + (1-blurAmount)*rgbstart))
 
 def colourDist(c1, c2):
@@ -347,10 +347,11 @@ original = origarray
 dogParent = dogImage(origarray)
 dogChild = dogParent.makeCopy()
 #creedChild.image_data = creedChild.image_data*0
-parentHistory, totalGen, runTime = Evolve(dogChild, 5, MAX_GEN, 100)
+parentHistory, totalGen, runTime = Evolve(dogChild, 5, MAX_GEN, 500)
 best = parentHistory[-1]
 #best.display()
 keras.preprocessing.image.save_img("dogified_" + origfile, best.image_data)
+
 
 
 
@@ -1357,3 +1358,4 @@ dogdict = {0: 'tench, Tinca tinca',
 
 b1, b2 = predictImage(best.image_data)
 dogtype = dogdict[b2]
+best.display()
