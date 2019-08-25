@@ -347,7 +347,7 @@ original = origarray
 dogParent = dogImage(origarray)
 dogChild = dogParent.makeCopy()
 #creedChild.image_data = creedChild.image_data*0
-parentHistory, totalGen, runTime = Evolve(dogChild, 5, MAX_GEN, 500)
+parentHistory, totalGen, runTime = Evolve(dogChild, 5, MAX_GEN, 200)
 best = parentHistory[-1]
 #best.display()
 keras.preprocessing.image.save_img("dogified_" + origfile, best.image_data)
