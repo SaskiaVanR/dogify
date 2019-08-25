@@ -3,6 +3,8 @@
 import tweepy
 import urllib.request
 import sys
+import platform
+import os
 
 # DO NOT COMMIT API KEYS TO GITHUB YOU IDIOT
 secretfile = open("secrets.txt", "r")
@@ -39,11 +41,18 @@ for tweet in tweepy.Cursor(api.mentions_timeline,since_id).items():
         media_file = open(media_filename, "wb")
         media_file.write(media)
         media_file.close()
+        if platform.system() == "Windows":
+            os.system("\Python37\python.exe evolvedog.py " + media_filename)
+        else:
+            os.system("./evolvedog.py " + media_filename)
+        api.update_with_media("dogified_" + media_filename, "Here is your dog!", in_reply_to_status_id=tweet.id, auto_populate_reply_metadata=True)
+        print("Tweet sent!")
+        os.remove(media_filename)
+        os.remove("dogified_" + media_filename)
     # Check if tweet is in reply to another tweet (that may have an image)
     #TODO
     # Update most recently processed image
-    # TODO: uncomment when running seriously
-    #since_id = max(tweet.id, since_id)
+    since_id = max(tweet.id, since_id)
 
 
 

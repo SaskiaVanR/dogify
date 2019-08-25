@@ -317,12 +317,7 @@ im1 = Image.open(origfile)
 im2 = im1.resize((224,224), Image.BILINEAR)
 im2.save("fresize.jpg")
 orig = keras.preprocessing.image.load_img("fresize.jpg")
-# Some debug crap
-##print(type(orig))
-##print(orig.format)
-##print(orig.mode)
-##print(orig.size)
-orig.show()
+#orig.show()
 origarray = keras.preprocessing.image.img_to_array(orig)
 
 ##print(len(origarray))
@@ -349,9 +344,10 @@ origarray = keras.preprocessing.image.img_to_array(orig)
 #flipimage = keras.preprocessing.image.array_to_img(fliparray)
 #flipimage.show()
 original = origarray
-creed = dogImage(origarray)
-creedChild = creed.makeCopy()
+dogParent = dogImage(origarray)
+dogChild = dogParent.makeCopy()
 #creedChild.image_data = creedChild.image_data*0
-parentHistory, totalGen, runTime = Evolve(creedChild, 5, MAX_GEN, 100)
+parentHistory, totalGen, runTime = Evolve(dogChild, 5, MAX_GEN, 100)
 best = parentHistory[-1]
-best.display()
+#best.display()
+keras.preprocessing.image.save_img("dogified_" + origfile, best.image_data)
