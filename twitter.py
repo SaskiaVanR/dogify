@@ -45,10 +45,13 @@ for tweet in tweepy.Cursor(api.mentions_timeline,since_id).items():
             os.system("\Python37\python.exe evolvedog.py " + media_filename)
         else:
             os.system("./evolvedog.py " + media_filename)
-        api.update_with_media("dogified_" + media_filename, "Here is your dog!", in_reply_to_status_id=tweet.id, auto_populate_reply_metadata=True)
+        statsfile = open("stats_" + media_filename + ".txt", "r")
+        api.update_with_media("dogified_" + media_filename, "Here is your dog! " + statsfile.read(), in_reply_to_status_id=tweet.id, auto_populate_reply_metadata=True)
+        statsfile.close()
         print("Tweet sent!")
         os.remove(media_filename)
         os.remove("dogified_" + media_filename)
+        os.remove("stats_" + media_filename + ".txt")
     # Check if tweet is in reply to another tweet (that may have an image)
     #TODO
     # Update most recently processed image
