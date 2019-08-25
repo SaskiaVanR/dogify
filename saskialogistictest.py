@@ -16,7 +16,14 @@ def predictImage(imagearray):
     b = [a,a]
     batch = np.stack(b)
     f = model.predict(batch)
-    return f
+    bestp = f[0][0]
+    best = 0
+    for i in range(151,269):
+        if f[0][i]>=bestp:
+            best = i
+            bestp = f[0][i]
+    return bestp, best
+
 
 
     
@@ -71,4 +78,4 @@ print("DONE")
 ace = keras.preprocessing.image.load_img("ace.jpg")
 smallace = ace.resize((224,224), Image.BILINEAR)
 acearray = keras.preprocessing.image.img_to_array(smallace)
-f = predictImage(acearray)
+bestp, best = predictImage(acearray)

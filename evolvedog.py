@@ -5,7 +5,44 @@ import time
 import sys
 import numpy
 from PIL import Image
+import keras
+from keras.applications import VGG19
+from keras.applications import imagenet_utils
+#from imutils import paths
+import numpy as np
 
+import csv
+
+def predictImage(imagearray):
+    a = np.copy(imagearray)
+    a = np.expand_dims(a, axis=0)
+    a = imagenet_utils.preprocess_input(a)
+    a = np.vstack(a)
+    b = [a,a]
+    batch = np.stack(b)
+    f = model.predict(batch)
+    bestp = f[0][0]
+    best = 0
+    for i in range(151,269):
+        if f[0][i]>=bestp:
+            best = i
+            bestp = f[0][i]
+    return bestp, best
+
+
+
+    
+# load the VGG16 network and initialize the label encoder
+print("[INFO] loading network...")
+#keras.models.load_model("vgg19_weights_tf_dim_ordering_tf_kernels.h5")
+model = VGG19(weights=None, input_shape= (224,224, 3))
+
+model.load_weights("vgg19_weights_tf_dim_ordering_tf_kernels.h5")
+print("DONE")
+ace = keras.preprocessing.image.load_img("ace.jpg")
+smallace = ace.resize((224,224), Image.BILINEAR)
+acearray = keras.preprocessing.image.img_to_array(smallace)
+bestp, best = predictImage(acearray)
 
 #---- global variables ----
 # mutation variables
@@ -17,8 +54,8 @@ MAX_GEN = 1 #for setting the maximum generations
 MIN_CONF = 2 #for setting the minimum dog confidence
 MAX_TIME = 3 #for setting max amount of time
 
-REC_PERC_MIN = 0.05
-REC_PERC_MAX = 0.1
+REC_PERC_MIN = 0.025
+REC_PERC_MAX = 0.2
 
 
 #---- end of global variables ----
@@ -34,6 +71,8 @@ class dogImage(object):
 
     # calculates objective value and stores it under self.obj
     def calcObj(self):
+        self.obj, a_ = predictImage(self.image_data)
+        return
         self.obj = self.calcSimilarity(targetDog)
         return
         total = 0
@@ -73,10 +112,9 @@ class dogImage(object):
 
         # does different mutations based on randomly generated number p
         p = random.random()
-        if p<0.5:
+        for i in range(0,random.randrange(5)):
             self.mutateRect()
-        else:
-            self.mutateB()
+
 
     # one type of mutation
     def mutateA(self):
@@ -215,9 +253,9 @@ def getRandomRectEnd(image, height, width):
     topy = random.randrange(0,maxHeight-height)
     bottomx = topx+width
     bottomy = topy+height
-    if targetDog[topy][topx][0]==0 and targetDog[topy][topx][1]==255 and\
-       targetDog[topy][topx][2]==0:
-        return getRandomRectEnd(image, height, width)
+    #if targetDog[topy][topx][0]==0 and targetDog[topy][topx][1]==255 and\
+       #targetDog[topy][topx][2]==0:
+        #return getRandomRectEnd(image, height, width)
     return([[topy, topx],[bottomy, bottomx]])
 
 # Function that moves the contents of one rectangle into another rectangle of the same size
@@ -246,9 +284,9 @@ def moveRect(imgarray, original, startRect, endRect):
             startx = startRect[0][1] + j
             pixel = blur(normDist(endy, endx, endRect[0][1], endRect[0][0], \
                                   endRect[0][1]+width, endRect[0][0]+height),\
-                         original[starty][startx], original[endy][endx])
-            pixel = original[startRect[0][0] + i][startRect[0][1] + j]
-            modarray[endRect[0][0] + i][endRect[0][1] + j] = pixel*hue
+                         modarray[starty][startx], modarray[endy][endx])
+            #pixel = original[startRect[0][0] + i][startRect[0][1] + j]
+            modarray[endRect[0][0] + i][endRect[0][1] + j] = pixel
     return modarray
 
 
@@ -286,7 +324,7 @@ targetWidth = len(targetDog[0])
 origfile = sys.argv[1]
 
 im1 = Image.open(origfile)
-im2 = im1.resize((targetWidth, targetHeight), Image.BILINEAR)
+im2 = im1.resize((224,224), Image.BILINEAR)
 im2.save("fresize.jpg")
 orig = keras.preprocessing.image.load_img("fresize.jpg")
 # Some debug crap
@@ -324,6 +362,6 @@ original = origarray
 creed = dogImage(origarray)
 creedChild = creed.makeCopy()
 #creedChild.image_data = creedChild.image_data*0
-parentHistory, totalGen, runTime = Evolve(creedChild, 20, MAX_GEN, 500)
+parentHistory, totalGen, runTime = Evolve(creedChild, 5, MAX_GEN, 300)
 best = parentHistory[-1]
 best.display()
