@@ -4,6 +4,8 @@ import random
 import time
 import sys
 import numpy
+from PIL import Image
+
 
 #---- global variables ----
 # mutation variables
@@ -14,6 +16,10 @@ sigmaB = 1 # (example) mutation sigma for mutate B
 MAX_GEN = 1 #for setting the maximum generations
 MIN_CONF = 2 #for setting the minimum dog confidence
 MAX_TIME = 3 #for setting max amount of time
+
+REC_PERC_MIN = 0.05
+REC_PERC_MAX = 0.1
+
 
 #---- end of global variables ----
 
@@ -28,6 +34,8 @@ class dogImage(object):
 
     # calculates objective value and stores it under self.obj
     def calcObj(self):
+        self.obj = self.calcSimilarity(targetDog)
+        return
         total = 0
         for row in self.image_data[::20]:
             for column in row[::20]:
@@ -36,15 +44,37 @@ class dogImage(object):
         self.obj = total
 
 
+    def calcSimilarity(self, targetDog):
+        score = 0
+        h = len(self.image_data)
+        w = len(self.image_data[0])
+        for row in range(20):
+            row = int(h*row/20)
+            for column in range(20):
+                column = int(w*column/20)
+                #print(row, column, targetDog[row][column])
+                if 0<=targetDog[row][column][0]<=5 and\
+                    250<=targetDog[row][column][1]<=255 and\
+                    0<=targetDog[row][column][2]<=5:
+                    continue
+                score += - colourDist(targetDog[row][column], \
+                                      self.image_data[row][column])
+##                for rgb in range(3):
+##                    #print((255 -abs(self.image_data[row][column][rgb]-\
+##                                 #targetDog[row][column][rgb])))
+##                    score += (255 -abs(self.image_data[row][column][rgb]-\
+##                                 targetDog[row][column][rgb]))
+##                    #print(score)
+        return score
+
+
     # mutates the image
     def mutate(self):
-        self.mutateRect()
-        return
 
         # does different mutations based on randomly generated number p
         p = random.random()
         if p<0.5:
-            self.mutateA()
+            self.mutateRect()
         else:
             self.mutateB()
 
@@ -54,12 +84,22 @@ class dogImage(object):
 
     # another type of mutation
     def mutateB(self):
-        pass
+        endRect=getRandomRectEnd(self.image_data,random.randrange(5,20),random.randrange(5,20))
+        hue = numpy.array([(0.7 +random.random()*0.6),\
+                           (0.7 +random.random()*0.6),(0.7 +random.random()*0.6)])
+        endheight = endRect[1][0] - endRect[0][0]
+        endwidth = endRect[1][1] - endRect[0][1]
+        for i in range(0, endheight):
+            for j in range(0, endwidth):
+                endy = endRect[0][0] + i
+                endx = endRect[0][1] + j
+                self.image_data[endRect[0][0] + i][endRect[0][1] + j] *=hue
+        
 
     def mutateRect(self):
-        startRect=getRandomRect(self.image_data)
-        endRect=getRandomRect(self.image_data,startRect[1][0] - startRect[0][0],startRect[1][1] - startRect[0][1])
-        self.image_data = moveRect(self.image_data, startRect, endRect)
+        startRect=getRandomRectStart(self.image_data)
+        endRect=getRandomRectEnd(self.image_data,startRect[1][0] - startRect[0][0],startRect[1][1] - startRect[0][1])
+        self.image_data = moveRect(self.image_data, original,startRect, endRect)
 
     # this function returns a new dogImage object
     # new dogImage must have a /copy/ of the image_data
@@ -151,42 +191,64 @@ def Evolve(startImage, numChildren, stopType, stopValue):
 # optionally taking the size of the rectangle as an argument
 # returns two arrays of two, in the form [row, column],[row,column]
 # for the top left and bottom right corners of the rectangle
-def getRandomRect(image, height=False, width=False):
+def getRandomRectStart(image, height=False, width=False):
     # TODO: percentage pixels
+    maxHeight = len(image)
+    maxWidth = len(image[0])
     if height==False:
-        height=random.randrange(20,100)
+        height=random.randrange(int(maxHeight*REC_PERC_MIN),
+                                int(maxHeight*REC_PERC_MAX))
     if width==False:
-        width=random.randrange(20,100)
-    maxHeight = len(origarray)
-    maxWidth = len(origarray[0])
+        width=random.randrange(int(maxWidth*REC_PERC_MIN),
+                                int(maxWidth*REC_PERC_MAX))
+    
     topx = random.randrange(0,maxWidth-width)
     topy = random.randrange(0,maxHeight-height)
     bottomx = topx+width
     bottomy = topy+height
     return([[topy, topx],[bottomy, bottomx]])
 
+def getRandomRectEnd(image, height, width):
+    maxHeight = len(image)
+    maxWidth = len(image[0])
+    topx = random.randrange(0,maxWidth-width)
+    topy = random.randrange(0,maxHeight-height)
+    bottomx = topx+width
+    bottomy = topy+height
+    if targetDog[topy][topx][0]==0 and targetDog[topy][topx][1]==255 and\
+       targetDog[topy][topx][2]==0:
+        return getRandomRectEnd(image, height, width)
+    return([[topy, topx],[bottomy, bottomx]])
+
 # Function that moves the contents of one rectangle into another rectangle of the same size
 # Takes arguments for starting Rect and ending Rect, with rectangles defined as they are
 # in the comments for getRandomRect
-def moveRect(imgarray, startRect, endRect):
+def moveRect(imgarray, original, startRect, endRect):
     modarray = imgarray
+    maxHeight = len(modarray)
+    maxWidth = len(modarray[0])
+    hue = numpy.array([(0.9 +random.random()*0.2),(0.9 +random.random()*0.2),(0.9 +random.random()*0.2)])
     #TODO: validate input by e.g. verifying size of rects is identical
     height = startRect[1][0] - startRect[0][0]
     endheight = endRect[1][0] - endRect[0][0]
     #print("DEBUG: height = " + str(height) + ' ' + str(endheight))
     width = startRect[1][1] - startRect[0][1]
     endwidth = endRect[1][1] - endRect[0][1]
+    #print(height, width, maxHeight, maxWidth)
     #print("DEBUG: width = " + str(width) + ' ' + str(endwidth))
     for i in range(0, height):
         for j in range(0, width):
             endy = endRect[0][0] + i
             endx = endRect[0][1] + j
+            if not 0<=endx<maxWidth or not 0<=endy<maxHeight:
+                continue
             starty = startRect[0][0] + i
             startx = startRect[0][1] + j
-            pixel = blur(normDist(endy, endx, endRect[0][1], endRect[0][0], endRect[0][1]+width, endRect[0][0]+height),\
-                         modarray[starty][startx], modarray[endy][endx])
-            
-            modarray[endRect[0][0] + i][endRect[0][1] + j] = pixel
+            pixel = blur(normDist(endy, endx, endRect[0][1], endRect[0][0], \
+                                  endRect[0][1]+width, endRect[0][0]+height),\
+                         original[starty][startx], original[endy][endx])
+            pixel = original[startRect[0][0] + i][startRect[0][1] + j]
+            modarray[endRect[0][0] + i][endRect[0][1] + j] = pixel*hue
     return modarray
 
 
@@ -206,23 +268,36 @@ def blur(minDist, rgbstart, rgbend):
     return((blurAmount*rgbend + (1-blurAmount)*rgbstart))
     
 
+def colourDist(c1, c2):
+    return ((c1[0]-c2[0])**2 + (c1[1]-c2[1])**2 + (c1[2]-c2[2])**2)**(1/2)
+
 print("Hello dog")
 if len(sys.argv) != 2:
     #origfile = "f.png" 
     sys.exit("Usage: %s imagefile" % sys.argv[0])
 
 import keras
+import tensorflow as tf
+targetimage = keras.preprocessing.image.load_img("ace_green.jpg")
+targetDog = keras.preprocessing.image.img_to_array(targetimage)
+targetHeight = len(targetDog)
+targetWidth = len(targetDog[0])
 
 origfile = sys.argv[1]
-orig = keras.preprocessing.image.load_img(origfile)
+
+im1 = Image.open(origfile)
+im2 = im1.resize((targetWidth, targetHeight), Image.BILINEAR)
+im2.save("fresize.jpg")
+orig = keras.preprocessing.image.load_img("fresize.jpg")
 # Some debug crap
-print(type(orig))
-print(orig.format)
-print(orig.mode)
-print(orig.size)
+##print(type(orig))
+##print(orig.format)
+##print(orig.mode)
+##print(orig.size)
 orig.show()
 origarray = keras.preprocessing.image.img_to_array(orig)
-print(len(origarray))
+
+##print(len(origarray))
 
 # for i, row in enumerate(origarray):
 #     for j, column in enumerate(origarray):
@@ -234,9 +309,9 @@ print(len(origarray))
 ##newarray = origarray
 ##for i in range(0,10):
 ##    print(str(i))
-##    startRect=getRandomRect(origarray)
+##    startRect=getRandomRectStart(origarray)
 ##    print(startRect)
-##    endRect=getRandomRect(origarray,startRect[1][0] - startRect[0][0],startRect[1][1] - startRect[0][1])
+##    endRect=getRandomRectEnd(origarray,startRect[1][0] - startRect[0][0],startRect[1][1] - startRect[0][1])
 ##    print(endRect)
 ##    newarray = moveRect(newarray, startRect, endRect)
 ##new = keras.preprocessing.image.array_to_img(newarray)
@@ -245,8 +320,10 @@ print(len(origarray))
 #fliparray = numpy.flip(origarray, [0])
 #flipimage = keras.preprocessing.image.array_to_img(fliparray)
 #flipimage.show()
-
+original = origarray
 creed = dogImage(origarray)
-parentHistory, totalGen, runTime = Evolve(creed, 5, MAX_GEN, 1000)
+creedChild = creed.makeCopy()
+#creedChild.image_data = creedChild.image_data*0
+parentHistory, totalGen, runTime = Evolve(creedChild, 20, MAX_GEN, 500)
 best = parentHistory[-1]
 best.display()
